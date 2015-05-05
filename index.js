@@ -62,44 +62,49 @@ exports.parse = function parse(data) {
   }).forEach(function(rule) {
     var bits = [];
 
-    bits.push("(function() {");
-    bits.push("  var o = {};", "");
+    rule.selectors.forEach(function(selector) {
+      bits.push("exports[" + JSON.stringify(selector) + "] = ");
+    });
 
-    var hasRules = false;
+    var hasExtensions = false;
+
     rule.declarations.forEach(function(declaration) {
-      hasRules = true;
-
-      if (declaration.type === "comment") {
-        bits.push("  //" + declaration.comment);
+      if (declaration.property !== "extend") {
         return;
       }
 
+      if (!hasExtensions) {
+        bits.push("Object.extend({}, ");
+        hasExtensions = true;
+      }
+
+      bits.push(declaration.value + ", ");
+    });
+
+    bits.push("{\n");
+
+    rule.declarations.forEach(function(declaration) {
       if (declaration.type !== "declaration") {
         return;
       }
 
       switch (declaration.property) {
       case "extend":
-        bits.push("  for (var k in " + declaration.value + ") {");
-        bits.push("    o[k] = " + declaration.value + "[k];");
-        bits.push("  }", "");
         break;
       default:
-        bits.push("  o[" + JSON.stringify(declaration.property) + "] = " + JSON.stringify(declaration.value) + ";");
+        bits.push("  " + JSON.stringify(declaration.property) + ": " + JSON.stringify(declaration.value) + ",\n");
       }
     });
 
-    if (hasRules) {
-      bits.push("");
+    bits.push("}");
+
+    if (hasExtensions) {
+      bits.push(")");
     }
 
-    rule.selectors.forEach(function(selector) {
-      bits.push("  exports[" + JSON.stringify(selector) + "] = o;");
-    });
+    bits.push(";\n");
 
-    bits.push("}());", "");
-
-    parts = parts.concat(bits);
+    parts = parts.concat(bits.join(""));
   });
 
   return done(parts.join("\n"));
