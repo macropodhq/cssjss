@@ -16,13 +16,17 @@ var compile = function compile(inputFile, outputFile, done) {
       return done(e);
     }
 
-    fs.writeFile(outputFile, js, function(err) {
-      if (err) {
-        return done(err);
-      }
+    if (outputFile) {
+      fs.writeFile(outputFile, js, function(err) {
+        if (err) {
+          return done(err);
+        }
 
-      return done();
-    });
+        return done();
+      });
+    } else {
+      console.log(js);
+    }
   });
 };
 
@@ -54,7 +58,7 @@ if (process.argv[2] === "-d") {
       process.exit(exit);
     }
   });
-} else if (process.argv.length === 4) {
+} else if (process.argv.length >= 3) {
   compile(process.argv[2], process.argv[3], function(err) {
     if (err) {
       console.warn(err);
