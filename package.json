@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "CSS/JSS bridge",
   "main": "index.js",
+  "bin": {
+    "cssjss": "./cmd/cssjss"
+  },
   "dependencies": {
     "css": "^2.2.0",
     "findit": "^2.0.0"
