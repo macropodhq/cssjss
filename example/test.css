@@ -1,0 +1,9 @@
+@import "hello.css" as hello;
+
+whatever {
+  extend: hello.typography;
+  extend: hello.mainColor;
+
+  /* override with a more respectable font */
+  font-family: 'papyrus';
+}

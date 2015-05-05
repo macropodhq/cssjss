@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+
+var cssjss = require("../");
+var fs = require("fs");
+var findit = require("findit");
+
+var compile = function compile(inputFile, outputFile, done) {
+  fs.readFile(inputFile, "utf8", function(err, data) {
+    if (err) {
+      return done(err);
+    }
+
+    try {
+      var js = cssjss.parse(data);
+    } catch (e) {
+      return done(e);
+    }
+
+    fs.writeFile(outputFile, js, function(err) {
+      if (err) {
+        return done(err);
+      }
+
+      return done();
+    });
+  });
+};
+
+if (process.argv[2] === "-d") {
+  var exit = 0;
+
+  var finder = findit(process.argv[3]);
+
+  finder.on("file", function(inputFile) {
+    if (!inputFile.match(/\.css$/)) {
+      return;
+    }
+
+    var outputFile = inputFile.replace(/\.css$/, ".js");
+
+    console.log("%s -> %s", inputFile, outputFile);
+
+    compile(inputFile, outputFile, function(err) {
+      if (err) {
+        console.warn("error (%s): %s", inputFile, err.toString());
+
+        exit = 1;
+      }
+    });
+  });
+
+  finder.on("end", function() {
+    if (exit !== 0) {
+      process.exit(exit);
+    }
+  });
+} else if (process.argv.length === 4) {
+  compile(process.argv[2], process.argv[3], function(err) {
+    if (err) {
+      console.warn(err);
+    }
+  });
+} else {
+  process.exit(1);
+}

@@ -1,0 +1,10 @@
+{
+  "name": "cssjss",
+  "version": "1.0.0",
+  "description": "CSS/JSS bridge",
+  "main": "index.js",
+  "dependencies": {
+    "css": "^2.2.0",
+    "findit": "^2.0.0"
+  }
+}
